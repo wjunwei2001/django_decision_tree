@@ -1,0 +1,76 @@
+{% extends 'questions/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Critical inline guards to guarantee zero tooltip text leaks */
+    .info-tooltip-content {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+    .info-help-btn {
+        width: 1.15rem !important;
+        height: 1.15rem !important;
+        min-width: 1.15rem !important;
+        border-radius: 50% !important;
+        background: #e2e8f0 !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        margin-left: 0.35rem !important;
+        vertical-align: middle !important;
+        transition: all 0.15s ease-in-out !important;
+        outline: none !important;
+        user-select: none !important;
+    }
+    .info-help-btn:hover, .info-help-btn:focus, .info-help-btn.active {
+        background: #059669 !important;
+        color: #ffffff !important;
+        border-color: #059669 !important;
+        transform: scale(1.15) !important;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3) !important;
+    }
+</style>
+<div class="result-wrapper">
+    <div class="result-card">
+        <div class="result-header">
+            <div class="header-badge-success">Analysis Report</div>
+            <h2 class="result-title">Statistical Analysis Output</h2>
+        </div>
+
+        <div class="result-body">
+            <div class="metrics-panel">
+                {{ result_text|safe }}
+            </div>
+
+            {% if boxplot_url %}
+            <div class="plot-container">
+                <h3 class="plot-title">Visualization & Diagnostics</h3>
+                <div class="plot-frame">
+                    <img src="{% static boxplot_url %}" alt="Statistical Diagnostic Plot" class="analysis-plot-img">
+                </div>
+                {% if result.plot_guide %}
+                <div class="plot-guide-wrapper">
+                    {{ result.plot_guide|safe }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="result-footer-actions">
+            <a href="{% url 'questions:decision_tree' %}" class="btn-primary-action">
+                <span>↺ Run Another Analysis / Restart Tree</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,96 +1,292 @@
 {% extends 'questions/base.html' %}
-
-{% block content %}
+{% load static %}
 {% load index %}
 
-{% for node in nodes %}
-    <!-- defining the next node in every for loop -->
-    {% if forloop.counter|add:1 <= nodes|length %}
-        {% with nodes|index:forloop.counter as next_node %}
-            <div class="questionbox">
-                {% if node.no_node_id or node.yes_node_id or node.one_node_id or node.two_node_id or node.moreThanTwo_node_id %}
-                    <h2 class="question">{{forloop.counter}}. {{ node.question }}</h2>
-                {% else %}
-                <!-- This only applies to the final node, which is always the answer -->
-                    <h2 class="answer">{{ node.question }}</h2> 
-                {% endif %}
-                {% if node.no_node_id or node.yes_node_id %}
-                    <form id="form" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="node_id" value="{{ node.pk }}">
-                        <!-- if next node is from the no node of the current question, the button will be disabled and given a different class -->
-                        {% if node.no_node_id == next_node.id %}
-                            <input type="submit" name="answer" value="Yes" id="button">
-                            <input type="submit" name="answer" value="No" id="clicked" disabled>
-                        {% elif node.yes_node_id == next_node.id %}
-                            <input type="submit" name="answer" value="Yes" id="clicked" disabled>
-                            <input type="submit" name="answer" value="No" id="button">
+{% block content %}
+<div class="tree-flow-wrapper">
+    <div class="tree-steps-container">
+        {% for node in nodes %}
+            {% if forloop.counter|add:1 <= nodes|length %}
+                {# PREVIOUSLY ANSWERED NODE #}
+                {% with nodes|index:forloop.counter as next_node %}
+                    <div class="step-card answered-card">
+                        <div class="step-header">
+                            <span class="step-number">Step {{ forloop.counter }}</span>
+                            <span class="step-status">Answered</span>
+                        </div>
+                        <h2 class="step-question">{{ node.question }}</h2>
+
+                        {% if node.no_node_id or node.yes_node_id %}
+                            <div class="button-group">
+                                {% if node.yes_node_id == next_node.id %}
+                                    <button class="choice-btn active-choice" disabled>✓ Yes</button>
+                                    <button class="choice-btn disabled-choice" disabled>No</button>
+                                {% elif node.no_node_id == next_node.id %}
+                                    <button class="choice-btn disabled-choice" disabled>Yes</button>
+                                    <button class="choice-btn active-choice" disabled>✓ No</button>
+                                {% endif %}
+                            </div>
+                        {% elif node.one_node_id or node.two_node_id or node.moreThanTwo_node_id %}
+                            <div class="button-group">
+                                {% if node.one_node_id %}
+                                    <button class="choice-btn {% if node.one_node_id == next_node.id %}active-choice{% else %}disabled-choice{% endif %}" disabled>{% if "predictor" in node.question.lower %}One Predictor{% elif "categor" in node.question.lower %}1 Category{% else %}1 Group{% endif %}</button>
+                                {% endif %}
+                                {% if node.two_node_id %}
+                                    <button class="choice-btn {% if node.two_node_id == next_node.id %}active-choice{% else %}disabled-choice{% endif %}" disabled>{% if "predictor" in node.question.lower %}2 Predictors{% elif "categor" in node.question.lower %}2 Categories{% else %}2 Groups{% endif %}</button>
+                                {% endif %}
+                                {% if node.moreThanTwo_node_id %}
+                                    <button class="choice-btn {% if node.moreThanTwo_node_id == next_node.id %}active-choice{% else %}disabled-choice{% endif %}" disabled>{% if "predictor" in node.question.lower %}Multiple Predictors{% elif "categor" in node.question.lower %}> 2 Categories{% else %}> 2 Groups{% endif %}</button>
+                                {% endif %}
+                            </div>
                         {% endif %}
-                    </form>
-                {% elif node.one_node_id or node.two_node_id or node.moreThanTwo_node_id %}    
-                    <form id="form" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="node_id" value="{{ node.pk }}">
-                        <!-- if next node is from the one_node of the current question, the button will be disabled and given a different class -->                        
-                        {% if node.one_node_id == next_node.id %}
-                            <input type="submit" name="answer" value="1" id="clicked" disabled>
-                            <input type="submit" name="answer" value="2" id="button">
-                            <input type="submit" name="answer" value="More than 2" id="button">
-                        {% elif node.two_node_id == next_node.id %}
-                            <input type="submit" name="answer" value="1" id="button">
-                            <input type="submit" name="answer" value="2" id="clicked" disabled>
-                            <input type="submit" name="answer" value="More than 2" id="button">
-                        {% elif node.moreThanTwo_node_id == next_node.id %}
-                            <input type="submit" name="answer" value="1" id="button">
-                            <input type="submit" name="answer" value="2" id="button">
-                            <input type="submit" name="answer" value="More than 2" id="clicked" disabled>
-                        {% else %}
-                            <input type="submit" name="answer" value="1" id="button">
-                            <input type="submit" name="answer" value="2" id="button">
-                            <input type="submit" name="answer" value="More than 2" id="button">
-                        {% endif %}
-                    </form>
-                {% endif %}
-            </div>
-        {% endwith %}
-    {% else %}
-    <!-- This else case is for the last index in nodes where there is no next node -->
-        <div class="questionbox">
-            {% if node.no_node_id or node.yes_node_id or node.one_node_id or node.two_node_id or node.moreThanTwo_node_id %}
-                <h2 class="question">{{forloop.counter}}. {{ node.question }}</h2>
+                    </div>
+                {% endwith %}
             {% else %}
-            <!-- This only applies to the final node, which is always the answer -->
-                <h2 class="answer">{{ node.question }}</h2> 
+                {# CURRENT ACTIVE NODE #}
+                {% if node.action_node or not node.yes_node_id and not node.no_node_id and not node.one_node_id and not node.two_node_id and not node.moreThanTwo_node_id %}
+                    {# LEAF / ACTION NODE REACHED #}
+                    <div class="step-card action-card">
+                        <div class="step-header">
+                            <span class="step-number final-step">Recommendation Reached</span>
+                            <span class="step-badge-success">Ready to Analyze</span>
+                        </div>
+
+                        <h2 class="action-title">{{ node.question }}</h2>
+
+                        <form method="POST" enctype="multipart/form-data" class="action-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="run_action" value="true">
+                            <input type="hidden" name="action_name" value="{{ node.action_node }}">
+
+                            <div class="parameters-grid">
+                                {# Common Parameter: Confidence Interval #}
+                                {% if node.action_node != "run_single_nonlinear_regression" and node.action_node != "run_multiple_nonlinear_regression" %}
+                                <div class="form-group">
+                                    <label class="form-label" for="conf_int">Confidence Level (%):</label>
+                                    <input type="number" id="conf_int" name="conf_int" class="form-control" value="95" min="50" max="99.9" step="0.1" required>
+                                    <small class="form-hint">Standard confidence level (e.g. 95% = α of 0.05)</small>
+                                </div>
+                                {% endif %}
+
+                                {# 1-Sample Specific Inputs #}
+                                {% if node.action_node == "run_1samp_hyp_testing" %}
+                                <div class="form-group">
+                                    <label class="form-label" for="mu">Hypothesized Mean (μ₀):</label>
+                                    <input type="number" id="mu" name="mu" class="form-control" value="100" step="any" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="alt_hyp">Alternative Hypothesis:</label>
+                                    <select id="alt_hyp" name="alt_hyp" class="form-control">
+                                        <option value="two-sided">Two-Sided (μ ≠ μ₀)</option>
+                                        <option value="greater">Upper-Tailed (μ > μ₀)</option>
+                                        <option value="less">Lower-Tailed (μ < μ₀)</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+
+                                {# Sample Size Specific Inputs #}
+                                {% if node.action_node == "run_samplesize_est" %}
+                                <div class="form-group">
+                                    <label class="form-label" for="delta">Expected Effect Size (δ):</label>
+                                    <input type="number" id="delta" name="delta" class="form-control" value="5.0" step="any" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="power_needed">Target Statistical Power (1 - β):</label>
+                                    <input type="number" id="power_needed" name="power_needed" class="form-control" value="0.80" min="0.5" max="0.99" step="0.05" required>
+                                </div>
+                                {% endif %}
+
+                                {# File Upload 1 #}
+                                <div class="form-group file-group">
+                                    <label class="form-label" for="data_file">
+                                        {% if node.action_node == "run_survival_analysis" %}Control Group Dataset (.dat/.csv):
+                                        {% elif node.action_node == "run_2samp_hyp_testing" %}Sample 1 Dataset (.dat/.csv):
+                                        {% elif node.action_node == "run_binomial_lr" or node.action_node == "run_ordinal_lr" or node.action_node == "run_multinomial_lr" %}Regression Dataset (.dat/.csv):
+                                        {% elif node.action_node == "check_singlelinearity" %}Single Predictor Dataset (.dat/.csv):
+                                        {% elif node.action_node == "run_multiple_linear_regression" or node.action_node == "check_multilinearity" %}Multiple Predictors Dataset (.dat/.csv):
+                                        {% elif node.action_node == "run_custom_nonlinear_regression" %}Non-Linear Regression Dataset (.dat/.csv):
+                                        {% else %}Primary Dataset File (.dat/.csv):{% endif %}
+                                    </label>
+                                    <input type="file" id="data_file" name="data_file" class="form-file" accept=".dat,.csv,.txt">
+                                    <small class="form-hint">
+                                        {% if node.action_node == "check_singlelinearity" %}Requires 2 columns: column 1 is predictor x, column 2 is outcome y. Leave empty to use sample linear.dat.
+                                        {% elif node.action_node == "run_multiple_linear_regression" or node.action_node == "check_multilinearity" %}Requires outcome y in column 1 and predictors x₁, x₂, ... in columns 2+. Leave empty to use sample multi_single.dat.
+                                        {% elif node.action_node == "run_custom_nonlinear_regression" %}Requires 2 columns: predictor x (col 1) and outcome y (col 2). Leave empty to use sample poly.dat.
+                                        {% elif node.action_node == "run_binomial_lr" %}Requires predictor column(s) and a binary outcome column (0/1 or 2 classes). Leave empty to use sample data.
+                                        {% elif node.action_node == "run_ordinal_lr" %}Requires predictor column(s) and an ordered categorical outcome column. Leave empty to use sample data.
+                                        {% elif node.action_node == "run_multinomial_lr" %}Requires predictor column(s) and a nominal multi-class outcome column (&gt;2 categories). Leave empty to use sample data.
+                                        {% else %}Optional: Leave empty to run with standard sample data.{% endif %}
+                                    </small>
+                                </div>
+
+                                {# File Upload 2 for 2-Sample / Survival #}
+                                {% if node.action_node == "run_survival_analysis" or node.action_node == "run_2samp_hyp_testing" %}
+                                <div class="form-group file-group">
+                                    <label class="form-label" for="data_file_2">
+                                        {% if node.action_node == "run_survival_analysis" %}New Drug / Treatment Group Dataset (.dat/.csv):
+                                        {% else %}Sample 2 Dataset (.dat/.csv):{% endif %}
+                                    </label>
+                                    <input type="file" id="data_file_2" name="data_file_2" class="form-file" accept=".dat,.csv,.txt">
+                                    <small class="form-hint">Optional: Leave empty to use default sample dataset.</small>
+                                </div>
+                                {% endif %}
+
+                                {# Single Predictor Modeling Approach: Auto Check vs Force Non-Linear #}
+                                {% if node.action_node == "check_singlelinearity" %}
+                                <div class="form-group" style="grid-column: 1 / -1; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-top: 4px;">
+                                    <label class="form-label" style="margin-bottom: 8px; font-weight: 700; color: #1e293b;">Modeling Approach:</label>
+                                    <div style="display: flex; gap: 18px; flex-wrap: wrap;">
+                                        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.92rem; font-weight: 500; color: #334155;">
+                                            <input type="radio" name="regression_mode" value="auto_check" checked onchange="document.getElementById('force_nl_panel').style.display='none';">
+                                            <span>Assess Linearity First (Default: automated quadratic test)</span>
+                                        </label>
+                                        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.92rem; font-weight: 500; color: #334155;">
+                                            <input type="radio" name="regression_mode" value="force_nonlinear" onchange="document.getElementById('force_nl_panel').style.display='block';">
+                                            <span>Force Non-Linear &amp; Specify Equation (Bypass linearity test)</span>
+                                        </label>
+                                    </div>
+
+                                    <div id="force_nl_panel" style="display: none; margin-top: 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 14px;">
+                                        <div style="margin-bottom: 10px;">
+                                            <label class="form-label" for="form_preset_select">Candidate Model Presets:</label>
+                                            <select id="form_preset_select" onchange="if(this.value!=='custom'){document.getElementById('form_custom_eq').value=this.value;}" class="form-control" style="background:#f8fafc;">
+                                                <option value="custom">Custom Equation (Type below)</option>
+                                                <option value="a * x**2 + b * x + c" selected>Quadratic Polynomial: y = a · x² + b · x + c</option>
+                                                <option value="a * exp(b * x)">Exponential: y = a · exp(b · x)</option>
+                                                <option value="a * x**b">Power Law: y = a · x^b</option>
+                                                <option value="a + b * log(x)">Logarithmic: y = a + b · ln(x)</option>
+                                                <option value="a * x / (b + x)">Michaelis-Menten / Rational: y = a · x / (b + x)</option>
+                                                <option value="100 / (1 + (beta / x)**2)">Hill Equation (Sigmoidal): y = 100 / (1 + (beta/x)²)</option>
+                                                <option value="a / (1 + exp(-b * (x - c)))">Logistic Growth: y = a / (1 + exp(-b(x - c)))</option>
+                                            </select>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <label class="form-label" for="form_custom_eq">Equation to Fit (in terms of x):</label>
+                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                <span style="font-family:monospace; font-weight:700; color:#059669; font-size:1.1rem;">ŷ = </span>
+                                                <input type="text" id="form_custom_eq" name="custom_equation" value="a * x**2 + b * x + c" class="form-control" style="font-family:monospace; font-size:0.95rem;">
+                                            </div>
+                                            <small class="form-hint">E.g., <code>a * exp(b * x)</code> or <code>a * x^b</code>. Variable must be <code>x</code>.</small>
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="form_initial_guesses">Initial Parameter Guesses (Optional):</label>
+                                            <input type="text" id="form_initial_guesses" name="initial_guesses" placeholder="e.g. a=1.0, b=0.5, c=1.0" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {# Multiple Predictors Modeling Approach: Auto Check vs Force Non-Linear #}
+                                {% if node.action_node == "run_multiple_linear_regression" or node.action_node == "check_multilinearity" %}
+                                <div class="form-group" style="grid-column: 1 / -1; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-top: 4px;">
+                                    <label class="form-label" style="margin-bottom: 8px; font-weight: 700; color: #1e293b;">Modeling Approach:</label>
+                                    <div style="display: flex; gap: 18px; flex-wrap: wrap;">
+                                        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.92rem; font-weight: 500; color: #334155;">
+                                            <input type="radio" name="regression_mode" value="auto_check" checked onchange="document.getElementById('force_multi_nl_panel').style.display='none';">
+                                            <span>Assess Linearity First (Default: automated multivariable quadratic test)</span>
+                                        </label>
+                                        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.92rem; font-weight: 500; color: #334155;">
+                                            <input type="radio" name="regression_mode" value="force_nonlinear" onchange="document.getElementById('force_multi_nl_panel').style.display='block';">
+                                            <span>Force Non-Linear &amp; Specify Equation (Bypass linearity test)</span>
+                                        </label>
+                                    </div>
+
+                                    <div id="force_multi_nl_panel" style="display: none; margin-top: 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 14px;">
+                                        <div style="margin-bottom: 10px;">
+                                            <label class="form-label" for="form_multi_preset_select">Candidate Multivariable Presets:</label>
+                                            <select id="form_multi_preset_select" onchange="if(this.value!=='custom'){document.getElementById('form_multi_custom_eq').value=this.value;}" class="form-control" style="background:#f8fafc;">
+                                                <option value="custom">Custom Multivariable Equation (Type below)</option>
+                                                <option value="a * (x1**b) * (x2**c)" selected>Cobb-Douglas Power: y = a · x1^b · x2^c</option>
+                                                <option value="a * x1**2 + b * x2**2 + c * x1 * x2 + d">Polynomial with Interaction: y = a·x1² + b·x2² + c·x1·x2 + d</option>
+                                                <option value="a * exp(b * x1) + c * exp(d * x2)">Multi-Exponential: y = a·exp(b·x1) + c·exp(d·x2)</option>
+                                                <option value="(a * x1) / (b + x1) + (c * x2) / (d + x2)">Multi-Rational Saturation: y = a·x1/(b+x1) + c·x2/(d+x2)</option>
+                                            </select>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <label class="form-label" for="form_multi_custom_eq">Equation to Fit (in terms of x1, x2, ...):</label>
+                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                <span style="font-family:monospace; font-weight:700; color:#059669; font-size:1.1rem;">ŷ = </span>
+                                                <input type="text" id="form_multi_custom_eq" name="custom_equation" value="a * (x1**b) * (x2**c)" class="form-control" style="font-family:monospace; font-size:0.95rem;">
+                                            </div>
+                                            <small class="form-hint">Use <code>x1, x2, ...</code> as predictor variables. Any other letters (e.g. <code>a, b, c, d</code>) are parameters to fit.</small>
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="form_multi_initial_guesses">Initial Parameter Guesses (Optional):</label>
+                                            <input type="text" id="form_multi_initial_guesses" name="initial_guesses" placeholder="e.g. a=1.0, b=0.5, c=0.5" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="action-btn-row">
+                                <button type="submit" class="submit-action-btn">
+                                    <span>⚡ Run Statistical Analysis</span>
+                                </button>
+                                <a href="{% url 'questions:decision_tree' %}" class="btn-restart">↺ Restart Decision Tree</a>
+                            </div>
+                        </form>
+                    </div>
+
+                {% else %}
+                    {# INTERMEDIATE ACTIVE QUESTION #}
+                    <div class="step-card active-card">
+                        <div class="step-header">
+                            <span class="step-number">Step {{ forloop.counter }}</span>
+                            <span class="step-status active-status">Current Question</span>
+                        </div>
+                        <h2 class="step-question">{{ node.question }}</h2>
+
+                        {% if node.no_node_id or node.yes_node_id %}
+                            <form method="POST" class="choice-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="node_id" value="{{ node.pk }}">
+                                <div class="button-group">
+                                    <button type="submit" name="answer" value="Yes" class="choice-btn choice-yes">Yes</button>
+                                    <button type="submit" name="answer" value="No" class="choice-btn choice-no">No</button>
+                                </div>
+                            </form>
+                        {% elif node.one_node_id or node.two_node_id or node.moreThanTwo_node_id %}
+                            <form method="POST" class="choice-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="node_id" value="{{ node.pk }}">
+                                <div class="button-group">
+                                    {% if node.one_node_id %}
+                                        <button type="submit" name="answer" value="1" class="choice-btn">{% if "predictor" in node.question.lower %}One Predictor{% elif "categor" in node.question.lower %}1 Category{% else %}1 Group{% endif %}</button>
+                                    {% endif %}
+                                    {% if node.two_node_id %}
+                                        <button type="submit" name="answer" value="2" class="choice-btn">{% if "predictor" in node.question.lower %}2 Predictors{% elif "categor" in node.question.lower %}2 Categories{% else %}2 Groups{% endif %}</button>
+                                    {% endif %}
+                                    {% if node.moreThanTwo_node_id %}
+                                        <button type="submit" name="answer" value="More than 2" class="choice-btn">{% if "predictor" in node.question.lower %}Multiple Predictors{% elif "categor" in node.question.lower %}> 2 Categories{% else %}> 2 Groups{% endif %}</button>
+                                    {% endif %}
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% endif %}
-            {% if node.no_node_id or node.yes_node_id %}
-                <form id="form" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="node_id" value="{{ node.pk }}">
-                    <input type="submit" name="answer" value="Yes" id="button">
-                    <input type="submit" name="answer" value="No" id="button">
-                </form>
-            {% elif node.one_node_id or node.two_node_id or node.moreThanTwo_node_id %}    
-                <form id="form" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="node_id" value="{{ node.pk }}">
-                    <input type="submit" name="answer" value="1" id="button">
-                    <input type="submit" name="answer" value="2" id="button">
-                    <input type="submit" name="answer" value="More than 2" id="button">
-                </form>
-            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if nodes|length > 1 %}
+        <div class="tree-footer-nav">
+            <a href="{% url 'questions:decision_tree' %}" class="btn-reset-tree">↺ Start Over from First Question</a>
         </div>
     {% endif %}
-{% endfor %}
+</div>
 
 <script>
-    // keep the scroll position of the page after refresh or each POST request
-    document.addEventListener("DOMContentLoaded", function(event) { 
-        var scrollpos = localStorage.getItem('scrollpos');
-        if (scrollpos) window.scrollTo(0, scrollpos);
+    // Maintain smooth scroll position upon branching
+    document.addEventListener("DOMContentLoaded", function() {
+        var scrollpos = localStorage.getItem('decision_tree_scroll');
+        if (scrollpos) {
+            window.scrollTo({ top: parseInt(scrollpos), behavior: 'smooth' });
+        }
     });
 
-    window.onbeforeunload = function(e) {
-        localStorage.setItem('scrollpos', window.scrollY);
+    window.onbeforeunload = function() {
+        localStorage.setItem('decision_tree_scroll', window.scrollY);
     };
 </script>
 {% endblock %}

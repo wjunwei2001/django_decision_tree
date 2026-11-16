@@ -1,0 +1,380 @@
+[
+{
+  "model": "questions.decisiontreenode",
+  "pk": 1,
+  "fields": {
+    "yes_node": 2,
+    "no_node": 3,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Are you estimating a population parameter (e.g., mean, variance, proportion)?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 2,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "ESTIMATION. Upload your data file in this format: a singular column of continuous values",
+    "action_node": "run_estimation"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 3,
+  "fields": {
+    "yes_node": 4,
+    "no_node": 5,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Are you analysing survival data?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 4,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "SURVIVAL DATA ANALYSIS. Upload your data in this format: ",
+    "action_node": "run_survival_analysis"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 5,
+  "fields": {
+    "yes_node": 6,
+    "no_node": 14,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Are you comparing groups?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 6,
+  "fields": {
+    "yes_node": 7,
+    "no_node": 8,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Is your data nominal (categorical)?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 7,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "NOMINAL DATA ANALYSIS. Upload your data in this format: ",
+    "action_node": "run_nominal_analysis"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 8,
+  "fields": {
+    "yes_node": 20,
+    "no_node": 10,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Are your samples paired (i.e. are they data of the same subjects before and after a study)?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 9,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "PAIRED TESTS. Upload your data in this format:",
+    "action_node": "run_paired_test"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 10,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": 11,
+    "two_node": 12,
+    "moreThanTwo_node": 13,
+    "description": null,
+    "question": "How many groups does your data have?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 11,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "1-SAMPLE HYPOTHESIS TESTING. Upload your data in this format:",
+    "action_node": "run_1samp_hyp_testing"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 12,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "2-SAMPLE HYPOTHESIS TESTING. Upload your data in this format:",
+    "action_node": "run_2samp_hyp_testing"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 13,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "ANOVA (ANALYSIS OF VARIANCE). Upload your data in this format:",
+    "action_node": "run_anova"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 14,
+  "fields": {
+    "yes_node": 15,
+    "no_node": 16,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Are you trying to determine the minimum required sample size for your study?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 15,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "SAMPLE SIZE ESTIMATION. Upload your data in this format: (need to key in Expected effect size (mean difference or proportion difference), standard deviation (σ), significance level (α), and desired power (1−β).",
+    "action_node": "run_samplesize_est"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 16,
+  "fields": {
+    "yes_node": 17,
+    "no_node": 22,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Do you want to study the relationship between numerical variables?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 17,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": 18,
+    "two_node": null,
+    "moreThanTwo_node": 19,
+    "description": "Select whether you are investigating a single predictor or multiple predictors.",
+    "question": "How many predictors are you investigating?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 18,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": "ASSESS PREDICTOR-OUTCOME RELATIONSHIP. Upload your single-predictor data file (column 1: predictor x, column 2: outcome y) to evaluate linearity. If no significant quadratic improvement is found, Simple Linear Regression is performed. If significant quadratic improvement is detected, you will be guided to select a candidate model or specify a custom non-linear equation.",
+    "question": "Assess the relationship between the predictor and outcome",
+    "action_node": "check_singlelinearity"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 19,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": "ASSESS MULTIVARIABLE PREDICTOR-OUTCOME RELATIONSHIP. Upload your multivariable dataset (column 1: outcome y, subsequent columns: predictors x₁, x₂, ... xₖ). We will assess the relationship across predictors by testing for significant quadratic curvature. If the relationship is linear (no significant quadratic improvement), Multiple Linear Regression is performed. If significant curvature is detected, you will be guided to select a multivariable model or specify a custom non-linear equation.",
+    "question": "Assess the relationship between the predictors and outcome",
+    "action_node": "check_multilinearity"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 20,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": 9,
+    "moreThanTwo_node": 21,
+    "description": null,
+    "question": "How many repeated measurements or conditions are there for each subject?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 21,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "REPEATED MEASURES ANOVA (ANALYSIS OF VARIANCE). Upload your data in this format:",
+    "action_node": "run_repeated_anova"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 22,
+  "fields": {
+    "yes_node": 23,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Are you modelling categorical outcomes using predictors?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 23,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": 24,
+    "moreThanTwo_node": 25,
+    "description": null,
+    "question": "How many outcome categories are there?",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 24,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "BINOMIAL LOGISTIC REGRESSION",
+    "action_node": "run_binomial_lr"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 25,
+  "fields": {
+    "yes_node": 26,
+    "no_node": 27,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "Are the categories ordered? (e.g. Low, Medium, High)",
+    "action_node": null
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 26,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "ORDINAL LOGISTIC REGRESSION",
+    "action_node": "run_ordinal_lr"
+  }
+},
+{
+  "model": "questions.decisiontreenode",
+  "pk": 27,
+  "fields": {
+    "yes_node": null,
+    "no_node": null,
+    "one_node": null,
+    "two_node": null,
+    "moreThanTwo_node": null,
+    "description": null,
+    "question": "MULTINOMIAL LOGISTIC REGRESSION",
+    "action_node": "run_multinomial_lr"
+  }
+}
+]

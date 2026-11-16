@@ -1,0 +1,54 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Django local database
+db.sqlite3
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local database editor files
+*.sqbpro
+
+# Temporary files
+*.log
+*.tmp
+
+# IDE settings
+.vscode/
+.idea/
+
+# Generated statistical analysis plots
+/questions/static/questions/*.png
+
+# Temporary testing and debugging files
+/scratch/
+
+# Temporary code-search results
+/dat_references.txt
+/sample_dataset_references.txt
+
+# Ignore duplicate datasets in the project root
+/*.dat
+
+# Development notes
+/19sep.md
+/21aug.md
+/22oct.md
+/29aug.md
+/30oct.md
+
+# Reference analysis files
+/reference_analysis_datasets/
+
+# Standalone experimental scripts
+/multiple_nonlinear.py
+/nonlinear.py

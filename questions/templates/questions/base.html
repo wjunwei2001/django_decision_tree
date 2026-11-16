@@ -1,15 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioData Analytics & Statistical Decision Tree</title>
     {% load static %}
-    <head>
-        <title>Data Analytics Decision Tree</title>
-        <link rel="stylesheet" href="{% static 'questions/base.css' %}">
-        <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,800;1,400;1,700&display=swap" rel="stylesheet">        
-        <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-    </head>
-    <body>
-        <h1 class="header">Answer the following questions to find out which statistical test to use</h1>       
-        {% block content %}
-        {% endblock %}
-    </body>
+    <link rel="stylesheet" href="{% static 'questions/base.css' %}?v=20261030_v5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .info-help-btn {
+            width: 1.15rem !important;
+            height: 1.15rem !important;
+            min-width: 1.15rem !important;
+            border-radius: 50% !important;
+            background: #e2e8f0 !important;
+            color: #475569 !important;
+            border: 1px solid #cbd5e1 !important;
+            font-size: 0.7rem !important;
+            font-weight: 700 !important;
+            line-height: 1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            margin-left: 0.35rem !important;
+            vertical-align: middle !important;
+            transition: all 0.15s ease-in-out !important;
+            outline: none !important;
+            user-select: none !important;
+        }
+        .info-help-btn:hover, .info-help-btn:focus, .info-help-btn.active {
+            background: #059669 !important;
+            color: #ffffff !important;
+            border-color: #059669 !important;
+            transform: scale(1.15) !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3) !important;
+        }
+        .global-info-popover {
+            position: fixed !important;
+            z-index: 999999 !important;
+            display: none;
+            max-width: 320px !important;
+            min-width: 190px !important;
+            background: #0f172a !important;
+            color: #f8fafc !important;
+            font-size: 0.8rem !important;
+            font-weight: 400 !important;
+            line-height: 1.5 !important;
+            padding: 0.75rem 0.95rem !important;
+            border-radius: 8px !important;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.4), 0 10px 10px rgba(15, 23, 42, 0.25) !important;
+            border: 1px solid #334155 !important;
+            pointer-events: auto !important;
+            opacity: 0;
+            transform: translateY(4px) scale(0.98);
+            transition: opacity 0.15s ease-out, transform 0.15s ease-out !important;
+            text-align: left !important;
+            white-space: normal !important;
+        }
+        .global-info-popover.popover-visible {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+        }
+        .global-info-popover .popover-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        .global-info-popover[data-placement="top"] .popover-arrow {
+            bottom: -6px;
+            border-width: 6px 6px 0 6px;
+            border-color: #0f172a transparent transparent transparent;
+        }
+        .global-info-popover[data-placement="bottom"] .popover-arrow {
+            top: -6px;
+            border-width: 0 6px 6px 6px;
+            border-color: transparent transparent #0f172a transparent;
+        }
+        .global-info-popover .popover-text {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            word-wrap: break-word;
+        }
+        .global-info-popover .popover-text b,
+        .global-info-popover .popover-text strong {
+            color: #34d399 !important;
+            font-weight: 700 !important;
+        }
+        .info-tooltip-content {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-badge">Interactive Statistical Guide</div>
+            <h1 class="header-title">Data Analytics Decision Tree</h1>
+            <p class="header-subtitle">Navigate step-by-step through statistical diagnostics to identify and run the optimal analysis for your dataset.</p>
+        </header>
+
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <footer class="app-footer">
+            <p>Bioengineering Data Analytics Suite • Built with Django & SciPy</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let activeBtn = null;
+            let isPinned = false;
+            let hideTimer = null;
+
+            // Create single global floating popover element
+            let popover = document.getElementById('global-info-popover');
+            if (!popover) {
+                popover = document.createElement('div');
+                popover.id = 'global-info-popover';
+                popover.className = 'global-info-popover';
+                popover.setAttribute('role', 'tooltip');
+                popover.innerHTML = '<div class="popover-arrow"></div><div class="popover-text"></div>';
+                document.body.appendChild(popover);
+            }
+
+            const popoverText = popover.querySelector('.popover-text');
+            const popoverArrow = popover.querySelector('.popover-arrow');
+
+            function positionPopover(btn) {
+                if (!btn) return;
+                const rect = btn.getBoundingClientRect();
+                
+                popover.style.display = 'block';
+                popover.style.visibility = 'hidden';
+                
+                const popoverWidth = popover.offsetWidth || 260;
+                const popoverHeight = popover.offsetHeight || 80;
+                
+                let left = rect.left + (rect.width / 2) - (popoverWidth / 2);
+                const padding = 12;
+                if (left < padding) left = padding;
+                if (left + popoverWidth > window.innerWidth - padding) {
+                    left = window.innerWidth - padding - popoverWidth;
+                }
+
+                let top;
+                let placement = 'top';
+                if (rect.top - popoverHeight - 10 < 10) {
+                    placement = 'bottom';
+                    top = rect.bottom + 8;
+                } else {
+                    placement = 'top';
+                    top = rect.top - popoverHeight - 8;
+                }
+
+                popover.style.left = left + 'px';
+                popover.style.top = top + 'px';
+                popover.setAttribute('data-placement', placement);
+
+                const arrowLeft = (rect.left + (rect.width / 2)) - left;
+                const clampedArrowLeft = Math.max(12, Math.min(popoverWidth - 12, arrowLeft));
+                popoverArrow.style.left = clampedArrowLeft + 'px';
+
+                popover.style.visibility = 'visible';
+                popover.classList.add('popover-visible');
+            }
+
+            function showTooltip(btn, pinned) {
+                clearTimeout(hideTimer);
+                const text = btn.getAttribute('data-tooltip') || btn.getAttribute('data-content') || btn.getAttribute('title');
+                if (!text) return;
+
+                if (btn.hasAttribute('title')) {
+                    btn.setAttribute('data-saved-title', btn.getAttribute('title'));
+                    btn.removeAttribute('title');
+                }
+
+                if (activeBtn && activeBtn !== btn) {
+                    activeBtn.classList.remove('active');
+                    if (activeBtn.hasAttribute('data-saved-title')) {
+                        activeBtn.setAttribute('title', activeBtn.getAttribute('data-saved-title'));
+                    }
+                }
+
+                activeBtn = btn;
+                isPinned = !!pinned;
+                btn.classList.add('active');
+
+                popoverText.innerHTML = text;
+                positionPopover(btn);
+            }
+
+            function hideTooltip(force) {
+                if (!force && isPinned) return;
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(function() {
+                    if (activeBtn) {
+                        activeBtn.classList.remove('active');
+                        if (activeBtn.hasAttribute('data-saved-title')) {
+                            activeBtn.setAttribute('title', activeBtn.getAttribute('data-saved-title'));
+                        }
+                        activeBtn = null;
+                    }
+                    isPinned = false;
+                    popover.classList.remove('popover-visible');
+                    setTimeout(function() {
+                        if (!activeBtn) popover.style.display = 'none';
+                    }, 160);
+                }, 120);
+            }
+
+            // Hover detection via event delegation
+            document.addEventListener('mouseover', function(e) {
+                const btn = e.target.closest('.info-help-btn');
+                if (btn) {
+                    if (!isPinned || activeBtn !== btn) {
+                        showTooltip(btn, false);
+                    }
+                }
+            });
+
+            document.addEventListener('mouseout', function(e) {
+                const btn = e.target.closest('.info-help-btn');
+                if (btn && (!isPinned || activeBtn !== btn)) {
+                    hideTooltip(false);
+                }
+            });
+
+            popover.addEventListener('mouseenter', function() {
+                clearTimeout(hideTimer);
+            });
+
+            popover.addEventListener('mouseleave', function() {
+                if (!isPinned) {
+                    hideTooltip(false);
+                }
+            });
+
+            // Click / Touch toggle (pins or unpins)
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.info-help-btn');
+                if (btn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (activeBtn === btn && isPinned) {
+                        hideTooltip(true);
+                    } else {
+                        showTooltip(btn, true);
+                    }
+                    return;
+                }
+
+                if (e.target.closest('#global-info-popover')) {
+                    return;
+                }
+
+                hideTooltip(true);
+            });
+
+            // Dismiss on Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideTooltip(true);
+                }
+            });
+
+            // Reposition on scroll/resize
+            window.addEventListener('scroll', function() {
+                if (activeBtn && popover.style.display !== 'none') {
+                    positionPopover(activeBtn);
+                }
+            }, { passive: true });
+
+            window.addEventListener('resize', function() {
+                if (activeBtn && popover.style.display !== 'none') {
+                    positionPopover(activeBtn);
+                }
+            }, { passive: true });
+        });
+    </script>
+</body>
 </html>
